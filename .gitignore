@@ -1,0 +1,35 @@
+# General
+*.bck
+*.bak
+﻿.~*
+_autosave-*
+*/#auto_saved_files#
+*/*-backups/*
+
+# KiCad
+fp-info-cache
+replicate_layout.log
+*.kicad_prl
+*.kicad_pro
+!main.kicad_pro
+!3313.kicad_pro
+!7628.kicad_pro
+!JLC02xx.kicad_pro
+*.kicad_sch-bak
+*.kicad_pcb-bak
+~*.lck
+*.rpt
+build
+main.step
+
+# Freecad
+*.FCStd1
+*.FCBak
+
+# Drawio
+*.bkp
+*.dtmp
+
+#Python
+__pycache__/
+*.py[cod]
