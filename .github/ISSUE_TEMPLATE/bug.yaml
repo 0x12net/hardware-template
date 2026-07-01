@@ -14,7 +14,7 @@ body:
       label: "Releases `URL`:"
       description: Insert the link to the release here, according to your board.
       placeholder: |
-        https://github.com/Artel-Inc/xxx/releases/tag/vX.X
+        https://github.com/xxx/xxx/releases/tag/vX.X.X
     validations:
       required: true
 
