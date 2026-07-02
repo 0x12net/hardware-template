@@ -990,7 +990,7 @@
           },
           {
             "group_by": false,
-            "label": "Описание",
+            "label": "Description",
             "name": "Description",
             "show": false
           },
@@ -998,7 +998,7 @@
             "group_by": false,
             "label": "mpn",
             "name": "mpn",
-            "show": false
+            "show": true
           },
           {
             "group_by": false,
