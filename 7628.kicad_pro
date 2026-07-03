@@ -932,6 +932,12 @@
           },
           {
             "group_by": false,
+            "label": "mpn",
+            "name": "mpn",
+            "show": true
+          },
+          {
+            "group_by": false,
             "label": "Reference",
             "name": "Reference",
             "show": true
@@ -1007,12 +1013,6 @@
             "label": "Description",
             "name": "Description",
             "show": false
-          },
-          {
-            "group_by": false,
-            "label": "mpn",
-            "name": "mpn",
-            "show": true
           },
           {
             "group_by": false,

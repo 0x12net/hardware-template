@@ -20,12 +20,12 @@ jobs:
     container: ghcr.io/0x12net/kici:10
     steps:
     - name: Check out repository code
-      uses: actions/checkout@v4
-      
+      uses: actions/checkout@v7
+
     - name: Run ERC
       if: success() || failure()
       run: kicadRulesCheck.sh -e
-      
+
     - name: Run DRC
       if: success() || failure()
       run: kicadRulesCheck.sh -d

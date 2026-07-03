@@ -9,18 +9,24 @@ jobs:
   Release:
     runs-on: ubuntu-latest
     container: ghcr.io/0x12net/kici:10
+    permissions:
+      contents: write
     env:
-      CORRECTIONCPLURL: "https://raw.githubusercontent.com/0x12net/metadata/refs/heads/main/correction_cpl_jlc.csv"
-      # PRJ_VERSION: ${GITHUB_REF_NAME}
       PRJ_REPO: ${{ github.event.repository.name }}
+      PRJ_VERSION: ${{ github.ref_name }}
       KIPRJ_DIR_ARRAY: "hardware*"
+      CORRECTIONCPLURL: "https://raw.githubusercontent.com/0x12net/metadata/refs/heads/main/correction_cpl_jlc.csv"
+      MODELS3D_REPOS: |
+        KICAD8_3DMODEL_DIR=https://gitlab.com/kicad/libraries/kicad-packages3D/-/raw/master
+        KICAD9_3DMODEL_DIR=https://gitlab.com/kicad/libraries/kicad-packages3D/-/raw/master
+        KICAD10_3DMODEL_DIR=https://gitlab.com/kicad/libraries/kicad-packages3D/-/raw/master
+        MAS_3DMODEL_DIR=https://raw.githubusercontent.com/MuratovAS/KiCadLibrary/master/MAS_3DModel
     steps:
     - name: Check out repository code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - name: Building production files
-      run: PRJ_VERSION=${GITHUB_REF_NAME} kicadRelease.sh -s -p -g -c -a -b -i -l
+      run:  kicadRelease.sh -s -p -d -g -c -a -b -i -l
     - name: Publishing production files
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
-        tag_name: ${{ steps.date.outputs.yymmdd }}
         files: build/*

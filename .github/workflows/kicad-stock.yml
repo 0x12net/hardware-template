@@ -1,10 +1,32 @@
 name: "KiCad Stock"
 
 on:
-  # push:
-  #   tags:
-  #     - 'v*.*.*'
   workflow_dispatch:
+    inputs:
+      lcsc:
+        description: 'LCSC — search by field (none = disable provider)'
+        type: choice
+        options: [sku, mpn, none]
+        default: sku
+      lcscRW:
+        description: 'LCSC — rewrite field (must differ from the search field)'
+        type: choice
+        options: [mpn, sku, none]
+        default: none
+      digikey:
+        description: 'DigiKey — search by field (none = disable provider)'
+        type: choice
+        options: [mpn, sku, none]
+        default: sku
+      digikeyRW:
+        description: 'DigiKey — rewrite field (must differ from the search field)'
+        type: choice
+        options: [sku, mpn, none]
+        default: none
+      qty:
+        description: 'Order quantity (qty, integer > 0)'
+        type: number
+        default: 1
 
 env:
   ARTIFACT_NAME: ${{ github.event.repository.name }}_stock_${{ github.run_id }}
@@ -13,34 +35,59 @@ jobs:
   Stock:
     runs-on: ubuntu-latest
     container: ghcr.io/0x12net/kici:10
+    permissions:
+      contents: write
+      pull-requests: write
     env:
-      # SOCKS5_URL: ${{ secrets.SOCKS5_URL }}
-      # SOCKS5_USERNAME: ${{ secrets.SOCKS5_USERNAME }}
-      # SOCKS5_PASSWORD: ${{ secrets.SOCKS5_PASSWORD }}
-      USERAGENTURL: "https://raw.githubusercontent.com/0x12net/metadata/refs/heads/main/userAgent.txt"
-      # PRJ_VERSION: ${GITHUB_REF_NAME}
+      DIGIKEY_CLIENT_ID: ${{ secrets.DIGIKEY_CLIENT_ID }}
+      DIGIKEY_CLIENT_SECRET: ${{ secrets.DIGIKEY_CLIENT_SECRET }}
       PRJ_REPO: ${{ github.event.repository.name }}
+      PRJ_VERSION: ${{ github.ref_name }}
       KIPRJ_DIR_ARRAY: "hardware*"
-      BOMVERIFIERARG: "-lcsc=sku -lcscRW=mpn"
-      PREVCOLUMN: "qty,mpn,lcsc,lcsc_sku,lcsc_consistent,lcsc_stock"
     steps:
     - name: Check out repository code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
+
+    - name: Build bomVerifier args
+      env:
+        IN_LCSC: ${{ inputs.lcsc }}
+        IN_LCSC_RW: ${{ inputs.lcscRW }}
+        IN_DIGIKEY: ${{ inputs.digikey }}
+        IN_DIGIKEY_RW: ${{ inputs.digikeyRW }}
+        IN_QTY: ${{ inputs.qty }}
+      run: |
+        args=""
+        # Preview columns: base columns plus each enabled provider's block.
+        cols="qty,mpn"
+        if [ "$IN_LCSC" != "none" ]; then
+          args="$args -lcsc=$IN_LCSC"
+          cols="$cols,lcsc,lcsc_sku,lcsc_stock,lcsc_price,lcsc_consistent"
+        fi
+        if [ "$IN_LCSC_RW" != "none" ]; then args="$args -lcscRW=$IN_LCSC_RW"; fi
+        if [ "$IN_DIGIKEY" != "none" ]; then
+          args="$args -digikey=$IN_DIGIKEY"
+          cols="$cols,digikey,digikey_sku,digikey_stock,digikey_price,digikey_consistent"
+        fi
+        if [ "$IN_DIGIKEY_RW" != "none" ]; then args="$args -digikeyRW=$IN_DIGIKEY_RW"; fi
+        args="$args -qty=$IN_QTY"
+        args="$(echo $args | xargs)"
+        echo "INFO: BOMVERIFIERARG=$args"
+        echo "INFO: PREVCOLUMN=$cols"
+        echo "BOMVERIFIERARG=$args" >> "$GITHUB_ENV"
+        echo "PREVCOLUMN=$cols" >> "$GITHUB_ENV"
+
     - name: Analysis/Creating a bom
-      run: PRJ_VERSION=${GITHUB_REF_NAME} kicadStock.sh schPropEdit
+      run: kicadStock.sh
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: build
         if-no-files-found: warn
 
-    - name: Clean source file
-      run: rm -rf build
-
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v6
+      uses: peter-evans/create-pull-request@v8
       with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: |
@@ -48,5 +95,5 @@ jobs:
           commit-message: |
             Updating from #${{ env.ARTIFACT_NAME }}
           body: |
-           This PR was created automatically by the action system 
-          branch: stock-${{ github.event.issue.number }}
+            This PR was created automatically by the action system
+          branch: stock-${{ github.run_id }}
