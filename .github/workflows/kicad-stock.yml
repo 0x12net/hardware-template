@@ -23,6 +23,26 @@ on:
         type: choice
         options: [sku, mpn, none]
         default: none
+      chipdip:
+        description: 'ChipDip — search by field (none = disable provider)'
+        type: choice
+        options: [sku, mpn, none]
+        default: sku
+      chipdipRW:
+        description: 'ChipDip — rewrite field (must differ from the search field)'
+        type: choice
+        options: [mpn, sku, none]
+        default: none
+      promelec:
+        description: 'Promelec — search by field (none = disable provider)'
+        type: choice
+        options: [sku, mpn, none]
+        default: sku
+      promelecRW:
+        description: 'Promelec — rewrite field (must differ from the search field)'
+        type: choice
+        options: [mpn, sku, none]
+        default: none
       qty:
         description: 'Order quantity (qty, integer > 0)'
         type: number
@@ -41,6 +61,8 @@ jobs:
     env:
       DIGIKEY_CLIENT_ID: ${{ secrets.DIGIKEY_CLIENT_ID }}
       DIGIKEY_CLIENT_SECRET: ${{ secrets.DIGIKEY_CLIENT_SECRET }}
+      PROMELEC_LOGIN: ${{ secrets.PROMELEC_LOGIN }}
+      PROMELEC_PASSWORD: ${{ secrets.PROMELEC_PASSWORD }}
       PRJ_REPO: ${{ github.event.repository.name }}
       PRJ_VERSION: ${{ github.ref_name }}
       KIPRJ_DIR_ARRAY: "hardware*"
@@ -54,6 +76,10 @@ jobs:
         IN_LCSC_RW: ${{ inputs.lcscRW }}
         IN_DIGIKEY: ${{ inputs.digikey }}
         IN_DIGIKEY_RW: ${{ inputs.digikeyRW }}
+        IN_CHIPDIP: ${{ inputs.chipdip }}
+        IN_CHIPDIP_RW: ${{ inputs.chipdipRW }}
+        IN_PROMELEC: ${{ inputs.promelec }}
+        IN_PROMELEC_RW: ${{ inputs.promelecRW }}
         IN_QTY: ${{ inputs.qty }}
       run: |
         args=""
@@ -69,6 +95,16 @@ jobs:
           cols="$cols,digikey,digikey_sku,digikey_stock,digikey_price,digikey_consistent"
         fi
         if [ "$IN_DIGIKEY_RW" != "none" ]; then args="$args -digikeyRW=$IN_DIGIKEY_RW"; fi
+        if [ "$IN_CHIPDIP" != "none" ]; then
+          args="$args -chipdip=$IN_CHIPDIP"
+          cols="$cols,chipdip,chipdip_sku,chipdip_stock,chipdip_price,chipdip_consistent"
+        fi
+        if [ "$IN_CHIPDIP_RW" != "none" ]; then args="$args -chipdipRW=$IN_CHIPDIP_RW"; fi
+        if [ "$IN_PROMELEC" != "none" ]; then
+          args="$args -promelec=$IN_PROMELEC"
+          cols="$cols,promelec,promelec_sku,promelec_stock,promelec_price,promelec_consistent"
+        fi
+        if [ "$IN_PROMELEC_RW" != "none" ]; then args="$args -promelecRW=$IN_PROMELEC_RW"; fi
         args="$args -qty=$IN_QTY"
         args="$(echo $args | xargs)"
         echo "INFO: BOMVERIFIERARG=$args"
