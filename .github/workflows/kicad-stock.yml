@@ -17,7 +17,7 @@ on:
         description: 'DigiKey — search by field (none = disable provider)'
         type: choice
         options: [mpn, sku, none]
-        default: sku
+        default: none
       digikeyRW:
         description: 'DigiKey — rewrite field (must differ from the search field)'
         type: choice
@@ -27,7 +27,7 @@ on:
         description: 'ChipDip — search by field (none = disable provider)'
         type: choice
         options: [sku, mpn, none]
-        default: sku
+        default: none
       chipdipRW:
         description: 'ChipDip — rewrite field (must differ from the search field)'
         type: choice
@@ -37,7 +37,7 @@ on:
         description: 'Promelec — search by field (none = disable provider)'
         type: choice
         options: [sku, mpn, none]
-        default: sku
+        default: none
       promelecRW:
         description: 'Promelec — rewrite field (must differ from the search field)'
         type: choice
@@ -87,22 +87,22 @@ jobs:
         cols="qty,mpn"
         if [ "$IN_LCSC" != "none" ]; then
           args="$args -lcsc=$IN_LCSC"
-          cols="$cols,lcsc,lcsc_sku,lcsc_stock,lcsc_price,lcsc_consistent"
+          cols="$cols,lcsc_sku,lcsc_stock,lcsc_consistent"
         fi
         if [ "$IN_LCSC_RW" != "none" ]; then args="$args -lcscRW=$IN_LCSC_RW"; fi
         if [ "$IN_DIGIKEY" != "none" ]; then
           args="$args -digikey=$IN_DIGIKEY"
-          cols="$cols,digikey,digikey_sku,digikey_stock,digikey_price,digikey_consistent"
+          cols="$cols,digikey_sku,digikey_stock,digikey_consistent"
         fi
         if [ "$IN_DIGIKEY_RW" != "none" ]; then args="$args -digikeyRW=$IN_DIGIKEY_RW"; fi
         if [ "$IN_CHIPDIP" != "none" ]; then
           args="$args -chipdip=$IN_CHIPDIP"
-          cols="$cols,chipdip,chipdip_sku,chipdip_stock,chipdip_price,chipdip_consistent"
+          cols="$cols,chipdip_sku,chipdip_stock,chipdip_consistent"
         fi
         if [ "$IN_CHIPDIP_RW" != "none" ]; then args="$args -chipdipRW=$IN_CHIPDIP_RW"; fi
         if [ "$IN_PROMELEC" != "none" ]; then
           args="$args -promelec=$IN_PROMELEC"
-          cols="$cols,promelec,promelec_sku,promelec_stock,promelec_price,promelec_consistent"
+          cols="$cols,promelec_sku,promelec_stock,promelec_consistent"
         fi
         if [ "$IN_PROMELEC_RW" != "none" ]; then args="$args -promelecRW=$IN_PROMELEC_RW"; fi
         args="$args -qty=$IN_QTY"
