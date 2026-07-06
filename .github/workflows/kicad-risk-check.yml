@@ -1,0 +1,24 @@
+name: "KiCad Risk Check"
+
+on:
+  push:
+    paths:
+      - 'hardware*/*.kicad_pro'
+      - 'hardware*/*.kicad_sch'
+  pull_request:
+    paths:
+      - 'hardware*/*.kicad_pro'
+      - 'hardware*/*.kicad_sch'
+
+jobs:
+  Risk:
+    runs-on: ubuntu-latest
+    container: ghcr.io/0x12net/kici:10
+    env:
+      RISKCLASSIFICATIONURL: "https://raw.githubusercontent.com/0x12net/metadata/refs/heads/main/risk_classification.csv"
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v7
+
+    - name: Run parts risk check
+      run: kicadRiskCheck.sh
