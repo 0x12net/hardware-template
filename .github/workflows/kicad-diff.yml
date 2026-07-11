@@ -1,0 +1,54 @@
+name: "KiCad Diff"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Use the last N tags'
+        type: number
+        default: 2
+      commits:
+        description: 'Use the last N commits of HEAD'
+        type: number
+        default: 2
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  ARTIFACT_NAME: ${{ github.event.repository.name }}_diff_${{ github.run_id }}
+  KIPRJ_DIR_ARRAY: "hardware*"
+  KIPRJ_NAME: "main"
+
+jobs:
+  Diff:
+    runs-on: ubuntu-latest
+    container: ghcr.io/0x12net/kici:10
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Generate diffs
+      env:
+        KDIF_TAGS: ${{ inputs.tags || 2 }}
+        KDIF_COMMITS: ${{ inputs.commits || 2 }}
+      run: |
+        mkdir -p build
+        for KIPRJ_DIR in $KIPRJ_DIR_ARRAY; do
+          if [ ! -f "${KIPRJ_DIR}/${KIPRJ_NAME}.kicad_pro" ]; then
+            echo "WARN: Skip folder ${KIPRJ_DIR}";
+            continue;
+          fi;
+          kdif --tags "$KDIF_TAGS" --commits "$KDIF_COMMITS" \
+               -o "build/${{ github.event.repository.name }}_${KIPRJ_DIR}_diff.html" \
+               "${KIPRJ_DIR}/${KIPRJ_NAME}.kicad_pro"
+        done
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: build
+        if-no-files-found: warn
