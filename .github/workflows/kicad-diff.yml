@@ -30,6 +30,9 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Mark workspace as a safe git directory
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
     - name: Generate diffs
       env:
         KDIF_TAGS: ${{ inputs.tags || 2 }}
