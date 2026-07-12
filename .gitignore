@@ -5,6 +5,22 @@
 _autosave-*
 */#auto_saved_files#
 */*-backups/*
+tmp
+build
+
+#Python
+__pycache__/
+*.py[cod]
+.venv/
+
+#Env
+.env
+.env.local
+
+#Agents
+AGENTS.local.md
+.claude/settings.local.json
+.claude/*.local.*
 
 # KiCad
 .history
@@ -20,7 +36,6 @@ replicate_layout.log
 *.kicad_pcb-bak
 ~*.lck
 *.rpt
-build
 main.step
 
 # Freecad
@@ -30,7 +45,3 @@ main.step
 # Drawio
 *.bkp
 *.dtmp
-
-#Python
-__pycache__/
-*.py[cod]
